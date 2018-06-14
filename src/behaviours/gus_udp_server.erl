@@ -10,7 +10,7 @@
 	 code_change/3]).
 
 -callback start_link(any()) -> {ok, pid()}.
--callback decode(any(), any(), any(), any()) -> any().
+-callback decode(any(), any(), any()) -> any().
 
 -record(state, {sock, mod}).
 
@@ -27,8 +27,8 @@ handle_call(What, _From, State) ->
 handle_cast(_What, State) ->
     {noreply, State}.
 
-handle_info({udp, Client, Ip, Port, Data}, State=#state{sock=Sock, mod=Mod}) ->
-    case Mod:decode(Client, Ip, Port, Data) of
+handle_info({udp, _Client, Ip, Port, Data}, State=#state{sock=Sock, mod=Mod}) ->
+    case Mod:decode(Ip, Port, Data) of
 	{reply, Payload} ->
 	    gen_udp:send(Sock, Ip, Port, Payload);
 	_ ->
