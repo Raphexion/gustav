@@ -1,4 +1,4 @@
--module(gustav).
+-module(gus_ser).
 
 -include_lib("eunit/include/eunit.hrl").
 
