@@ -1,0 +1,5 @@
+language: erlang
+
+otp_release:
+  - 20.2
+  - 19.3
