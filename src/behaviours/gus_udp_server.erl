@@ -31,6 +31,10 @@ handle_info({udp, _Client, Ip, Port, Data}, State=#state{sock=Sock, mod=Mod}) ->
     case Mod:decode(Ip, Port, Data) of
 	{reply, Payload} ->
 	    gen_udp:send(Sock, Ip, Port, Payload);
+	{reply, Payload, DPort} ->
+	    gen_udp:send(Sock, Ip, DPort, Payload);
+	{reply, Payload, DIp, DPort} ->
+	    gen_udp:send(Sock, DIp, DPort, Payload);
 	_ ->
 	    ok
     end,
