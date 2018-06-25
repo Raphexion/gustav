@@ -44,18 +44,24 @@ unpacker(Dictionary, <<>>) ->
     end;
 
 unpacker(Dictionary, BinaryData) ->
+    Left = erlang:bit_size(BinaryData),
     fun(X) ->
 	    case X of
 		[] ->
 		    Dictionary;
-		[{Key, Size} | Tail] ->
+
+		[{Key, Size} | Tail] when Left >= Size ->
 		    case BinaryData of
 			<<Value:Size, Rest/bitstring>> ->
 			    D = Dictionary#{ Key => Value },
 			    (unpacker(D, Rest))(Tail);
 			_ ->
 			    {error, Key, Size, BinaryData}
-		    end
+		    end;
+
+		[{Key, Size} | _Tail] ->
+		    {error, {not_enough_data_for, {Key, Size}, only, Left}}
+
 	    end
     end.
 
@@ -95,10 +101,15 @@ unpacker_minimal_test() ->
     ?assert(maps:find(d, D) =:= {ok, 4}),
     ?assert(maps:find(e, D) =:= error).
 
-unpacker_missing_data_test() ->
+unpacker_missing_data_even_test() ->
     F = unpacker(#{}, <<1:8>>),
     D = F([{a, 8}, {b, 16}]),
     ?assert(D =:= {error, {not_enough_data, {b, 16}}}).
+
+unpacker_missing_data_uneven_test() ->
+    F = unpacker(#{}, <<1:8, 2:15>>),
+    D = F([{a, 8}, {b, 16}]),
+    ?assert(D =:= {error, {not_enough_data_for, {b, 16}, only, 15}}).
 
 unpacker_bitstring_test() ->
     F = unpacker(#{}, <<123:16>>),
