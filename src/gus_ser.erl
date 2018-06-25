@@ -49,7 +49,7 @@ unpacker(Dictionary, BinaryData) ->
 		[] ->
 		    Dictionary;
 		[{Key, Size} | Tail] ->
-		    <<Value:Size, Rest/binary>> = BinaryData,
+		    <<Value:Size, Rest/bitstring>> = BinaryData,
 		    D = Dictionary#{ Key => Value },
 		    (unpacker(D, Rest))(Tail)
 	    end
@@ -95,6 +95,12 @@ unpacker_missing_data_test() ->
     F = unpacker(#{}, <<1:8>>),
     D = F([{a, 8}, {b, 16}]),
     ?assert(D =:= {error, {not_enough_data, {b, 16}}}).
+
+unpacker_bitstring_test() ->
+    F = unpacker(#{}, <<123:16>>),
+    D = F([{a, 7}, {b, 9}]),
+    ?assert(maps:find(a, D) =:= {ok, 0}),
+    ?assert(maps:find(b, D) =:= {ok, 123}).
 
 unpacker_remain_prev_test() ->
     F = unpacker(#{e => 5}, <<1:8, 2:16, 3:32, 4:8>>),
