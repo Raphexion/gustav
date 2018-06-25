@@ -20,10 +20,15 @@ packer(Dictionary, BinaryData) ->
 		[] ->
 		    BinaryData;
 		[{Key, Size} | Tail] ->
-		    {ok, Value} = maps:find(Key, Dictionary),
-		    Next = <<Value:Size>>,
-		    Blob = <<BinaryData/binary, Next/binary>>,
-		    (packer(Dictionary, Blob))(Tail)
+		    case maps:find(Key, Dictionary) of
+			{ok, Value} ->
+			    Next = <<Value:Size>>,
+			    Blob = <<BinaryData/binary, Next/binary>>,
+			    (packer(Dictionary, Blob))(Tail);
+
+			error ->
+			    {error, {key_not_found, Key}}
+		    end
 	    end
     end.
 
@@ -54,6 +59,11 @@ packer_minimal_test() ->
     F = packer(#{a => 1, b => 2, c => 3, d => 4}),
     B = F([{a, 8}, {b, 16}, {c, 32}, {d, 8}]),
     ?assert(B =:= <<1:8, 2:16, 3:32, 4:8>>).
+
+packer_missing_key_test() ->
+    F = packer(#{a => 1}),
+    B = F([{a, 8}, {b, 16}]),
+    ?assert(B =:= {error, {key_not_found, b}}).
 
 %%
 
