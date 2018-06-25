@@ -49,9 +49,13 @@ unpacker(Dictionary, BinaryData) ->
 		[] ->
 		    Dictionary;
 		[{Key, Size} | Tail] ->
-		    <<Value:Size, Rest/bitstring>> = BinaryData,
-		    D = Dictionary#{ Key => Value },
-		    (unpacker(D, Rest))(Tail)
+		    case BinaryData of
+			<<Value:Size, Rest/bitstring>> ->
+			    D = Dictionary#{ Key => Value },
+			    (unpacker(D, Rest))(Tail);
+			_ ->
+			    {error, Key, Size, BinaryData}
+		    end
 	    end
     end.
 
