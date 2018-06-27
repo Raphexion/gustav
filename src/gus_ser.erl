@@ -48,7 +48,7 @@ unpacker(Dictionary, BinaryData) ->
     fun(X) ->
 	    case X of
 		[] ->
-		    Dictionary;
+		    {Dictionary, BinaryData};
 
 		[{Key, Size} | Tail] when Left >= Size ->
 		    case BinaryData of
@@ -110,6 +110,13 @@ unpacker_missing_data_uneven_test() ->
     F = unpacker(#{}, <<1:8, 2:15>>),
     D = F([{a, 8}, {b, 16}]),
     ?assert(D =:= {error, {not_enough_data_for, {b, 16}, only, 15}}).
+
+unpacker_leftover_data_test() ->
+    F = unpacker(#{}, <<1:8, 2:16, 3:32>>),
+    {D, Rest} = F([{a, 8}, {b, 16}]),
+    ?assert(maps:find(a, D) =:= {ok, 1}),
+    ?assert(maps:find(b, D) =:= {ok, 2}),
+    ?assert(Rest =:= <<3:32>>).
 
 unpacker_bitstring_test() ->
     F = unpacker(#{}, <<123:16>>),
