@@ -11,6 +11,8 @@
 
 -callback start_link(any()) -> {ok, pid()}.
 -callback decode(any(), any(), any(), any()) -> any().
+-callback handle_call(any(), any(), any()) -> any().
+-callback handle_cast(any(), any()) -> any().
 
 -record(state, {sock, mod, localstate}).
 
@@ -27,11 +29,13 @@ handle_call(localstate, _From, State=#state{localstate=LocalState}) ->
 handle_call({localstate, LocalState}, _From, State) ->
     {reply, ok, State#state{localstate=LocalState}};
 
-handle_call(What, _From, State) ->
-    {reply, {ok, What}, State}.
+handle_call(What, From, State=#state{mod=Mod, localstate=LocalState0}) ->
+    {reply, Response, LocalState} = Mod:handle_call(What, From, LocalState0),
+    {reply, Response, State#state{localstate=LocalState}}.
 
-handle_cast(_What, State) ->
-    {noreply, State}.
+handle_cast(What, State=#state{mod=Mod, localstate=LocalState0}) ->
+    {noreply, LocalState} = Mod:handle_cast(What, LocalState0),
+    {noreply, State#state{localstate=LocalState}}.
 
 handle_info({udp, _Client, Ip, Port, Data}, State=#state{sock=Sock, mod=Mod, localstate=LocalState0}) ->
     LocalState = case Mod:decode(Ip, Port, Data, LocalState0) of
