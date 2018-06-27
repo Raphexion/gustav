@@ -24,6 +24,9 @@ init([Mod, Port, LocalState]) ->
 handle_call(localstate, _From, State=#state{localstate=LocalState}) ->
     {reply, {ok, LocalState}, State};
 
+handle_call({localstate, LocalState}, _From, State) ->
+    {reply, ok, State#state{localstate=LocalState}};
+
 handle_call(What, _From, State) ->
     {reply, {ok, What}, State}.
 
