@@ -1,6 +1,7 @@
 -module(gus_udp_server).
 -behaviour(gen_server).
 
+-export([send_to/4]).
 -export([start_link/3]).
 -export([init/1,
 	 handle_call/3,
@@ -16,12 +17,19 @@
 
 -record(state, {sock, mod, localstate}).
 
+send_to(Pid, Address, Port, Message) ->
+    gen_server:call(Pid, {send_to, Address, Port, Message}).
+
 start_link(Mod, Port, LocalState) ->
     gen_server:start_link(?MODULE, [Mod, Port, LocalState], []).
 
 init([Mod, Port, LocalState]) ->
     {ok, Sock} = gen_udp:open(Port, [binary, {active, true}]),
     {ok, #state{sock=Sock, mod=Mod, localstate=LocalState}}.
+
+handle_call({send_to, Address, Port, Message}, _From, State=#state{sock=Sock}) ->
+    Res = gen_udp:send(Sock, Address, Port, Message),
+    {reply, {ok, Res}, State};
 
 handle_call(localstate, _From, State=#state{localstate=LocalState}) ->
     {reply, {ok, LocalState}, State};
