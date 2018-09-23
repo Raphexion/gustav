@@ -1,6 +1,6 @@
 {application, gustav,
  [{description, "Small helper library"},
-  {vsn, "0.1.4"},
+  {vsn, "0.1.6"},
   {registered, []},
   {applications,
    [kernel,
