@@ -11,7 +11,6 @@
 	 terminate/2,
 	 code_change/3]).
 
--callback start_link(any()) -> {ok, pid()}.
 -callback decode(any(), any(), any(), any()) -> any().
 -callback handle_call(any(), any(), any()) -> any().
 -callback handle_cast(any(), any()) -> any().
