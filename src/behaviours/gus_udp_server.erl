@@ -31,7 +31,7 @@ init([Mod, Port, LocalState]) ->
     {ok, #state{sock=Sock, mod=Mod, localstate=LocalState}};
 
 init([Mod, Port, ProcessName, LocalState]) ->
-    gproc:reg({n, l, ProcessName}),
+    register(ProcessName, self()),
     init([Mod, Port, LocalState]).
 
 handle_call({send_to, Address, Port, Message}, _From, State=#state{sock=Sock}) ->
