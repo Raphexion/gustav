@@ -14,6 +14,7 @@
 -callback decode(any(), any(), any(), any()) -> any().
 -callback handle_call(any(), any(), any()) -> any().
 -callback handle_cast(any(), any()) -> any().
+-callback handle_info(any(), any()) -> any().
 
 -record(state, {sock, mod, localstate}).
 
@@ -72,6 +73,10 @@ handle_info({udp, _Client, Ip, Port, Data}, State=#state{sock=Sock, mod=Mod, loc
 		     _ ->
 			 LocalState0
 		 end,
+    {noreply, State#state{localstate=LocalState}};
+
+handle_info(What, State=#state{mod=Mod, localstate=LocalState0}) ->
+    {noreply, LocalState} = Mod:handle_info(What, LocalState0),
     {noreply, State#state{localstate=LocalState}}.
 
 terminate(_Reason, #state{sock=Sock}) ->
