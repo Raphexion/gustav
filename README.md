@@ -1,6 +1,8 @@
 gustav
 =====
 
+[![Build Status](https://travis-ci.org/Raphexion/gustav.svg?branch=master)](https://travis-ci.org/Raphexion/gustav)
+
 A helper library.
 
 Examples
