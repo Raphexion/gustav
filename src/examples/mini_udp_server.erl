@@ -4,7 +4,8 @@
 
 %% API
 -export([start_link/2,
-	 status/1]).
+	 status/1,
+	 send_to/4]).
 
 %% Behaviour callbacks
 -export([decode/4,
@@ -21,6 +22,9 @@ start_link(Port, Dict) ->
 
 status(Server) ->
     gen_server:call(Server, localstate).
+
+send_to(Pid, Address, Port, Message) ->
+    gus_udp_server:send_to(Pid, Address, Port, Message).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
