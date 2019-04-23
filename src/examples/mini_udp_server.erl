@@ -1,5 +1,7 @@
 -module(mini_udp_server).
 -behaviour(gus_udp_server).
+-include("gus_mini.hrl").
+
 -define(PACKING_SPEC, [{a, 8}, {b, 16}, {c, 32}]).
 
 %% API
