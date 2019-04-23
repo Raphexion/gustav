@@ -2,6 +2,7 @@ gustav
 =====
 
 [![Build Status](https://travis-ci.org/Raphexion/gustav.svg?branch=master)](https://travis-ci.org/Raphexion/gustav)
+[![codecov.io](https://codecov.io/gh/Raphexion/gustav/coverage.svg?branch=master)](https://codecov.io/gh/Raphexion/gustav?branch=master)
 
 A helper library for two use-cases:
 
