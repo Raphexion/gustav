@@ -28,7 +28,7 @@ start_link(Mod, Port, ProcessName, LocalState) ->
     gen_server:start_link(?MODULE, [Mod, Port, ProcessName, LocalState], []).
 
 init([Mod, Port, LocalState]) ->
-    {ok, Sock} = gen_udp:open(Port, [binary, {active, true}]),
+    {ok, Sock} = gen_udp:open(Port, [binary, {active, true}, {reuseaddr, true}]),
     {ok, #state{sock=Sock, mod=Mod, localstate=LocalState}};
 
 init([Mod, Port, ProcessName, LocalState]) ->
