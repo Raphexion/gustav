@@ -6,7 +6,7 @@
 
 %% API
 -export([start_link/2,
-	 status/1,
+	 dict/1,
 	 send_to/4]).
 
 %% Behaviour callbacks
@@ -22,7 +22,7 @@
 start_link(Port, Dict) ->
     gus_udp_server:start_link(?MODULE, Port, Dict).
 
-status(Server) ->
+dict(Server) ->
     gen_server:call(Server, localstate).
 
 send_to(Pid, Address, Port, Message) ->

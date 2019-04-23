@@ -28,7 +28,7 @@ prop_basic_test() ->
 		{ok, S} = mini_udp_server:start_link(Port, Dict),
 		{ok, C} = mini_udp_client:start_link("localhost", Port, Dict),
 
-		{ok, Dict} =:= mini_udp_server:status(S)
+		{ok, Dict} =:= mini_udp_server:dict(S)
 		    andalso updates(Dict, S, C, KeyValues)
 		    andalso close(S, C)
 	    end).
@@ -43,7 +43,7 @@ updates(Dict0, S, C, [{Key, Value}|Rest]) ->
     Dict = maps:put(Key, Value, Dict0),
     mini_udp_client:set(C, Key, Value),
     timer:sleep(10),
-    {ok, Dict} =:= mini_udp_server:status(S)
+    {ok, Dict} =:= mini_udp_server:dict(S)
 	andalso updates(Dict, S, C, Rest).
 
 close(S, C) ->
