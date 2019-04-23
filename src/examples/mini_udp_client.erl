@@ -6,7 +6,8 @@
 %% API
 
 -export([start_link/3,
-	 set/3]).
+	 set/3,
+	 client_port/1]).
 
 %% Behaviour callbacks
 
@@ -27,11 +28,21 @@ start_link(Host, Port, Dict) ->
 set(Client, Key, Value) ->
     gen_server:call(Client, {set, Key, Value}).
 
+client_port(Client) ->
+    gen_server:call(Client, port).
+
+last_data(Client) ->
+    gen_server:call(Client, last_data).
+
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
 %%------------------------------------------------------------------------------
 
--record(state, {socket, dict, host, port}).
+-record(state, {socket,
+		dict,
+		host,
+		port,
+		data = <<>>}).
 
 init({Host, Port, Dict}) ->
     {ok, Socket} = gen_udp:open(0, [binary, {active,true}, {reuseaddr, true}]),
@@ -42,12 +53,23 @@ handle_call({set, Key, Value}, _From, State=#state{dict=Dict0}) ->
     Packer = gus_ser:packer(Dict1),
     Payload = Packer(?PACKING_SPEC),
     send(Payload, State),
-    {reply, ok, State#state{dict=Dict1}}.
+    {reply, ok, State#state{dict=Dict1}};
 
-handle_cast(_What, State) ->
+handle_call(port, _From, State=#state{socket=Socket}) ->
+    {ok, {_Ip, Port}} = inet:sockname(Socket),
+    {reply, {ok, Port}, State};
+
+handle_call(last_data, _From, State=#state{data=Data}) ->
+    {reply, {ok, Data}, State}.
+
+handle_cast(What, State) ->
     {noreply, State}.
 
-handle_info(_What, State) ->
+handle_info({udp, _, _, _, Data}, State) ->
+    {noreply, State#state{data=Data}};
+
+handle_info(What, State) ->
+    io:fwrite(">>~p<<~n", [What]),
     {noreply, State}.
 
 terminate(_Reason, #state{socket=Socket}) ->
