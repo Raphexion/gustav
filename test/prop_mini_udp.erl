@@ -4,7 +4,23 @@
 %%%%%%%%%%%%%%%%%%
 %%% Properties %%%
 %%%%%%%%%%%%%%%%%%
-prop_test() ->
+
+prop_send_to_test() ->
+    ?FORALL(Data, non_empty(binary()),
+	    begin
+		Port = 12345,
+		Dict = #{},
+		{ok, S} = mini_udp_server:start_link(Port, Dict),
+		{ok, C} = mini_udp_client:start_link("localhost", Port, Dict),
+
+		{ok, CPort} = mini_udp_client:client_port(C),
+
+		mini_udp_server:send_to(S, "localhost", CPort, Data),
+		timer:sleep(10),
+		{ok, Data} =:= mini_udp_client:last_data(C)
+	    end).
+
+prop_basic_test() ->
     ?FORALL(KeyValues, key_values(),
 	    begin
 		Port = 12345,
@@ -26,7 +42,7 @@ updates(_Dict, _S, _C, []) ->
 updates(Dict0, S, C, [{Key, Value}|Rest]) ->
     Dict = maps:put(Key, Value, Dict0),
     mini_udp_client:set(C, Key, Value),
-    timer:sleep(50),
+    timer:sleep(10),
     {ok, Dict} =:= mini_udp_server:status(S)
 	andalso updates(Dict, S, C, Rest).
 
